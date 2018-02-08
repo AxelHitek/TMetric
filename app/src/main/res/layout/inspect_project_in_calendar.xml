@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <TextView
+        android:id="@+id/projectDetailsInCalendar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Details of project:"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:layout_below="@+id/projectDetailsInCalendar"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="10sp"
+        android:layout_height="wrap_content"
+        android:id="@+id/projectNameInCalendar"
+        />
+
+    <TextView
+        android:layout_marginLeft="10sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/clientNameInCalendar"
+        android:layout_below="@+id/projectNameInCalendar"
+        />
+
+    <TextView
+        android:layout_marginLeft="10sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/projectTaskInCalendar"
+        android:layout_below="@id/clientNameInCalendar"
+        />
+
+    <TextView
+        android:layout_marginLeft="10sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/hoursWorkedOnProjectThatDay"
+        android:layout_below="@id/projectTaskInCalendar"
+        />
+
+</RelativeLayout>

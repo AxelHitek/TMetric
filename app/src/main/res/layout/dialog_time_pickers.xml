@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textViewTimePickerInstruction"
+        android:text="Pick the time you started working and the time you stoped. Don't forget to hit the submit button"
+        android:textStyle="italic"
+        />
+
+    <LinearLayout
+        android:layout_below="@+id/textViewTimePickerInstruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayoutStartHour">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start hour"
+            android:id="@+id/buttonStartHour"/>
+
+        <TextView
+            android:layout_marginLeft="10sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:text="Pick start hour"
+            android:id="@+id/textViewStartHour"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_below="@+id/linearLayoutStartHour"
+        android:id="@+id/linearLayoutFinishHour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Finish hour"
+            android:id="@+id/buttonFinishHour"
+            />
+
+        <TextView
+            android:layout_marginLeft="10sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:text="Pick finis hour"
+            android:id="@+id/textViewFinishHour"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayoutCalculateHours"
+        android:layout_below="@id/linearLayoutFinishHour">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonCalculateTimeWorked"
+            android:text="Calculate"/>
+
+        <TextView
+            android:layout_marginTop="10sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10sp"
+            android:id="@+id/textViewTimeWorked"
+            android:text="Total time worked"
+            android:textStyle="bold"
+            android:textSize="17sp"/>
+    </LinearLayout>
+
+
+
+    <Button
+        android:layout_marginTop="20sp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonSubmitWorkedHours"
+        android:text="Submit worked time!"
+        android:layout_below="@+id/linearLayoutCalculateHours"
+        />
+
+</RelativeLayout>

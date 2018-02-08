@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TMetric</string>
+    <string name="title_activity_day_project">DayProjectActivity</string>
+</resources>
