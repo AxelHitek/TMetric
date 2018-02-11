@@ -1,12 +1,12 @@
 package com.tm.ah.tmetric;
 
-import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -23,7 +23,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.tm.ah.tmetric.holders.Project;
+import com.tm.ah.tmetric.listAdapters.LstViewAdapter;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -79,8 +82,8 @@ public class DayProjectActivity extends AppCompatActivity {
                         mStartMinute = c1.get(Calendar.MINUTE);
 
                         //to avoid attempts to "trick the system" by inputting a valid set of hours and then changing it and hitting submit
-                        if (!textViewfinishHour.getText().toString().equals("Pick start hour")) {
-                            textViewTimeWorkedHour.setText("Total time worked");
+                        if (!textViewfinishHour.getText().toString().equals(getString(R.string.button_pick_start_hour))) {
+                            textViewTimeWorkedHour.setText(R.string.main_activity_time_worked_dialog_title);
                         }
 
                         // Launch Time Picker Dialog
@@ -108,8 +111,8 @@ public class DayProjectActivity extends AppCompatActivity {
                         mFinishMinute = c2.get(Calendar.MINUTE);
 
                         //to avoid attempts to "trick the system" by inputting a valid set of hours and then changing it and hitting submit
-                        if (!textViewstartHour.getText().toString().equals("Pick start hour")) {
-                            textViewTimeWorkedHour.setText("Total time worked");
+                        if (!textViewstartHour.getText().toString().equals(getString(R.string.button_pick_start_hour))) {
+                            textViewTimeWorkedHour.setText(R.string.dialog_text_view_total_time_worked);
                         }
 
                         TimePickerDialog finishTimePickerDialog = new TimePickerDialog(view.getContext(),
@@ -131,8 +134,7 @@ public class DayProjectActivity extends AppCompatActivity {
                 buttonCalculateTimeWorked.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (!textViewstartHour.getText().equals("Pick start hour") && !textViewfinishHour.getText().equals("Pick finis hour")) {
-
+                        if (!textViewstartHour.getText().equals(getString(R.string.button_pick_start_hour)) && !textViewfinishHour.getText().equals(getString(R.string.button_pick_finish_hour))) {
                             textViewTimeWorkedHour.setText(calculateTimeWorked(textViewstartHour.getText().toString(), textViewfinishHour.getText().toString()));
                         }
                     }
@@ -149,7 +151,7 @@ public class DayProjectActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         if(!textViewTimeWorkedHour.getText().toString().trim().equals("Total time worked"))
                         setHoursWorkedToday(e.getText().toString().trim(), textViewTimeWorkedHour.getText().toString());
-                        else Toast.makeText(DayProjectActivity.this,"Calculate time worked first!",Toast.LENGTH_SHORT).show();
+                        else Toast.makeText(DayProjectActivity.this, R.string.warning_click_both_buttons_before_submit,Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -218,11 +220,11 @@ public class DayProjectActivity extends AppCompatActivity {
             String taskName = taskNameET;
 
             insertProjectIntoDB(projectName, clientName, taskName);
-            Toast.makeText(this, "Information saved", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.message_info_saved_succesfully, Toast.LENGTH_LONG).show();
             displayNewProject(adapter, projectsAvailable, projectName, clientName, taskName);
             dialog.dismiss();
         } else {
-            Toast.makeText(dialog.getContext(), "Please fill all the fields, and try again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(dialog.getContext(), R.string.warning_fill_all_fields_before_add_project, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -275,35 +277,33 @@ public class DayProjectActivity extends AppCompatActivity {
         String currentDate = simpleDateFormat.format(new Date());
 
         daysDBReference.child(currentDate).child(pname).child(cname).child(tname).child("minutesWorked").setValue(effectiveMinutesWorked);
-        Toast.makeText(this, "Progress submited", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.message_progress_submitted_for_project, Toast.LENGTH_LONG).show();
     }
 
     private String calculateTimeWorked(String textViewstartHour, String textViewfinishHour) {
 
-        if (textViewstartHour.compareTo(textViewfinishHour) < 0) {
-            //HH converts hour in 24 hours format (0-23), day calculation
-            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-            Date d1 = null;
-            Date d2 = null;
+        //TODO extract check to different method
+        //TODO find way to anounce users of problem
+        Date d1 = null;
+        Date d2 = null;
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+        try {
+            d1 = format.parse(textViewstartHour);
+            d2 = format.parse(textViewfinishHour);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "Total time worked";
+        }
 
-            try {
-                d1 = format.parse(textViewstartHour);
-                d2 = format.parse(textViewfinishHour);
+        if (d1.before(d2)) {
+            long diff = d2.getTime() - d1.getTime();
 
-                //in milliseconds
-                long diff = d2.getTime() - d1.getTime();
+            long diffMinutes = diff / (60 * 1000) % 60;
+            long diffHours = diff / (60 * 60 * 1000) % 24;
 
-                long diffMinutes = diff / (60 * 1000) % 60;
-                long diffHours = diff / (60 * 60 * 1000) % 24;
+            Log.e("DIFFERENCE",Math.abs(diffHours) + ":" + Math.abs(diffMinutes));
+            return new String(Math.abs(diffHours) + ":" + Math.abs(diffMinutes));
 
-                System.out.print(diffHours + " hours, ");
-                System.out.print(diffMinutes + " minutes, ");
-                return new String(Math.abs(diffHours) + ":" + Math.abs(diffMinutes));
-                //textViewTimeWorkedHour.setText(Math.abs(diffHours)+":"+Math.abs(diffMinutes));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         return "Total time worked";

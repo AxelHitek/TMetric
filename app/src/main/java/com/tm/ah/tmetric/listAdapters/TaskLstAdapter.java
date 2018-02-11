@@ -1,4 +1,4 @@
-package com.tm.ah.tmetric;
+package com.tm.ah.tmetric.listAdapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,25 +7,26 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.tm.ah.tmetric.R;
+
 import java.util.ArrayList;
 
 /**
- * Created by AH on 2/8/2018.
+ * Created by AH on 2/9/2018.
  */
 
-public class ClientLstAdapter extends ArrayAdapter<String> {
+public class TaskLstAdapter extends ArrayAdapter<String> {
 
     int groupid;
     ArrayList<String> elements;
     Context context;
-    public ClientLstAdapter(Context context, int vg, int id, ArrayList elem){
+    public TaskLstAdapter(Context context, int vg, int id, ArrayList elem){
         super(context,vg, id, elem);
         this.context=context;
         groupid=vg;
         this.elements =elem;
-
     }
-    // Hold views of the ListView to improve its scrolling performance
+
     static class ViewHolder {
         public TextView textview;
     }
@@ -36,12 +37,12 @@ public class ClientLstAdapter extends ArrayAdapter<String> {
         if(rowView==null){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             rowView= inflater.inflate(groupid, parent, false);
-            ClientLstAdapter.ViewHolder viewHolder = new ClientLstAdapter.ViewHolder();
-            viewHolder.textview= (TextView) rowView.findViewById(R.id.clientNameCalendar);
+            TaskLstAdapter.ViewHolder viewHolder = new TaskLstAdapter.ViewHolder();
+            viewHolder.textview= (TextView) rowView.findViewById(R.id.taskNameCalendar);
             rowView.setTag(viewHolder);
         }
 
-        ClientLstAdapter.ViewHolder holder = (ClientLstAdapter.ViewHolder) rowView.getTag();
+        TaskLstAdapter.ViewHolder holder = (TaskLstAdapter.ViewHolder) rowView.getTag();
         holder.textview.setText(elements.get(position));
         return rowView;
     }

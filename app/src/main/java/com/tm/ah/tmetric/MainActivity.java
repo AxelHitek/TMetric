@@ -12,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,6 +22,11 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.tm.ah.tmetric.formater.TimeFormatter;
+import com.tm.ah.tmetric.holders.TaskHolder;
+import com.tm.ah.tmetric.listAdapters.CalendarLstViewAdapter;
+import com.tm.ah.tmetric.listAdapters.ClientLstAdapter;
+import com.tm.ah.tmetric.listAdapters.TaskLstAdapter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,15 +42,16 @@ public class MainActivity extends AppCompatActivity {
     private ListView calendarClientListView;
     private ListView calendarTaskListView;
     private DatabaseReference databaseReference;
+    private TimeFormatter timeFormatter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //instanciate view elements
         materialCalendarView = (MaterialCalendarView) findViewById(R.id.materialCalendarView);
         manageDayButton = (Button) findViewById(R.id.manageDayButton);
+        timeFormatter = new TimeFormatter();
 
         materialCalendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.MONDAY)
@@ -60,53 +65,22 @@ public class MainActivity extends AppCompatActivity {
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull final CalendarDay date, boolean selected) {
 
                 final AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
-                View mView = getLayoutInflater().inflate(R.layout.calendar_day_projects, null);
+                final View mView = getLayoutInflater().inflate(R.layout.calendar_day_projects, null);
                 mBuilder.setView(mView);
 
                 calendarProjectListView= (ListView) mView.findViewById(R.id.calendarProjectListView);
                 calendarProjectListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                        Toast.makeText(MainActivity.this, "An item of the ListView is clicked.", Toast.LENGTH_LONG).show();
 
                         AlertDialog.Builder secondBuilder = new AlertDialog.Builder(MainActivity.this);
                         View secView = getLayoutInflater().inflate(R.layout.project_item_calendar, null);
                         secondBuilder.setView(secView);
 
-                        /*final ArrayList projectsAvailable=new ArrayList<String>();
-                        final CalendarLstViewAdapter adapter=new CalendarLstViewAdapter(MainActivity.this,R.layout.project_item_calendar,R.id.projectNameCalendar,projectsAvailable);
-                        calendarProjectListView.setAdapter(adapter);*/
+                        final String selectedDate = timeFormatter.formatSystemDayToMatchCalendarDayFormat(timeFormatter.transformMaterialCalendarDateIntoSystemCalendarDate(date));
+                        final String selectedProjectNameFromDialog = ((TextView)(((ViewGroup) view).getChildAt(0))).getText().toString();
 
-                        //DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child()
-                        String selectedDate = formatSystemDayToMatchCalendarDayFormat(transformMaterialCalendarDateIntoSystemCalendarDate(date));
-                        Log.d("****Date****",selectedDate);
+                        displayClientDialogForSelectedProject(selectedProjectNameFromDialog,selectedDate);
 
-                        String selectedProjectNameFromDialog = ((TextView)(((ViewGroup) view).getChildAt(0))).getText().toString();
-                        Log.d("***Project***", selectedProjectNameFromDialog);
-
-                        displayClientDialogForSelectedDay(selectedProjectNameFromDialog,selectedDate);
-
-
-                        //displayClientDialogForSelectedDay(selectedProjectNameFromDialog,selectedDate);
-
-                        /*DatabaseReference databaseReferenceProjectsPerProject = FirebaseDatabase.getInstance().getReference().child("Days")
-                                .child(formatSystemDayToMatchCalendarDayFormat(transformMaterialCalendarDateIntoSystemCalendarDate(date)))
-                                .child(selectedProjectNameFromDialog);
-                        databaseReferenceProjectsPerProject.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                                    Log.d("CLIENT NAME: ",snapshot.getKey().toString());
-                                    projectsAvailable.add(snapshot.getKey().toString());
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {}
-                        });*/
-
-                        //AlertDialog secDialog = secondBuilder.create();
-                        //secDialog.show();
                     }
                 });
                 displayDialogForWorkedDays(date,mBuilder);
@@ -122,31 +96,65 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    //111111111111111
     private void showProjectsForSelectedDate(CalendarDay calendarDay){
 
         final ArrayList projectsAvailable=new ArrayList<String>();
         final CalendarLstViewAdapter adapter=new CalendarLstViewAdapter(MainActivity.this,R.layout.project_item_calendar,R.id.projectNameCalendar,projectsAvailable);
         calendarProjectListView.setAdapter(adapter);
 
-        String selectedDay =formatSystemDayToMatchCalendarDayFormat(transformMaterialCalendarDateIntoSystemCalendarDate(calendarDay));
+        String selectedDay = timeFormatter.formatSystemDayToMatchCalendarDayFormat(timeFormatter.transformMaterialCalendarDateIntoSystemCalendarDate(calendarDay));
         DatabaseReference databaseReferenceProjectsPerDay = FirebaseDatabase.getInstance().getReference().child("Days").child(selectedDay);
         databaseReferenceProjectsPerDay.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                        Log.d("projNAM: ",snapshot.getKey().toString());
+                        //Log.d("projNAM: ",snapshot.getKey().toString());
                         projectsAvailable.add(snapshot.getKey().toString());
-                        adapter.notifyDataSetChanged();
                     }
+                    adapter.notifyDataSetChanged();
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {}
             });
     }
 
-    //22222222222222
-    private void displayClientDialogForSelectedDay(String selectedProjectName, String selectedDate){
+    public void displayTaskDialogForSelectedClient(String selectedDay, String selectedProject, String selectedClient){
+        final ArrayList clientsForProject = new ArrayList<String>();
+        final TaskLstAdapter adapter = new TaskLstAdapter(MainActivity.this, R.layout.task_item_calendar,R.id.taskNameCalendar,clientsForProject);
+
+        final AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
+        View mView = getLayoutInflater().inflate(R.layout.calendar_day_tasks, null);
+        calendarTaskListView = (ListView) mView.findViewById(R.id.calendarTaskListView);
+        calendarTaskListView.setAdapter(adapter);
+        mBuilder.setView(mView);
+
+        final DatabaseReference databaseReferenceProjectsPerProject = FirebaseDatabase.getInstance().getReference().child("Days")
+                .child(selectedDay)
+                .child(selectedProject)
+                .child(selectedClient);
+        databaseReferenceProjectsPerProject.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> children = dataSnapshot.getChildren();
+
+                for (DataSnapshot child: children) {
+                    TaskHolder task = child.getValue(TaskHolder.class);
+                    String taskName = child.getKey().toString();
+                    clientsForProject.add(taskName+" -- "+task.minutesWorked+ "min");
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        AlertDialog thirdDialog = mBuilder.create();
+        thirdDialog.show();
+
+    }
+
+    private void displayClientDialogForSelectedProject(final String selectedProjectName, final String selectedDate){
 
         final ArrayList clientsForProject = new ArrayList<String>();
         final ClientLstAdapter adapter = new ClientLstAdapter(MainActivity.this, R.layout.client_item_calendar,R.id.clientNameCalendar,clientsForProject);
@@ -156,8 +164,6 @@ public class MainActivity extends AppCompatActivity {
         calendarClientListView.setAdapter(adapter);
         mBuilder.setView(mView);
 
-        Log.d("This should be DATE", selectedDate);
-        Log.d("This should be PROJECT", selectedProjectName);
 
         final DatabaseReference databaseReferenceProjectsPerProject = FirebaseDatabase.getInstance().getReference().child("Days")
                 .child(selectedDate)
@@ -165,16 +171,12 @@ public class MainActivity extends AppCompatActivity {
         databaseReferenceProjectsPerProject.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                calendarProjectListView.setAdapter(adapter);
                 Iterable<DataSnapshot> children = dataSnapshot.getChildren();
-                Log.d("# of clients", String.valueOf(dataSnapshot.getChildrenCount()));
-
                 for (DataSnapshot child: children) {
-                    Log.d("CLIENT NAME: ",child.getKey().toString());
                     String clientName = child.getKey().toString();
                     clientsForProject.add(clientName);
-                    adapter.notifyDataSetChanged();
                 }
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -183,20 +185,24 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog secDialog = mBuilder.create();
         secDialog.show();
+
+        calendarClientListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                displayTaskDialogForSelectedClient(selectedDate, selectedProjectName, ((TextView)(((ViewGroup) view).getChildAt(0))).getText().toString());
+            }
+        });
     }
 
-    //333333333333333
     private void displayDialogForWorkedDays(final CalendarDay calendarDay, final AlertDialog.Builder mBuilder){
-
-        final String calDayStr= transformMaterialCalendarDateIntoSystemCalendarDate(calendarDay);
-
+        final String calDayStr= timeFormatter.transformMaterialCalendarDateIntoSystemCalendarDate(calendarDay);
         //TODO get the worked dates only when starting activity not at every date change to minimize network trafic and make app run faster
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Days");
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot snapshot:dataSnapshot.getChildren()){
-                    String dbDate = formatDataBaseDayToMatchCalendarDayFormat(snapshot.getKey());
+                    String dbDate = timeFormatter.formatDataBaseDayToMatchCalendarDayFormat(snapshot.getKey());
 
                     if(calDayStr.equals(dbDate)) {
                         showProjectsForSelectedDate(calendarDay);
@@ -210,36 +216,5 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private String calculateTotalHoursWorkedOnProject(){
-        return "5 hours";
-    }
 
-    private String transformMaterialCalendarDateIntoSystemCalendarDate(CalendarDay calendarDay){
-        return calendarDay.toString().replace("CalendarDay{","").replace("}","");
-    }
-
-    private String formatDataBaseDayToMatchCalendarDayFormat(String dataBaseDate){
-        String[] date = dataBaseDate.split("-");
-        String formatedDate = date[0]+"-"+(parseInt(date[1])-1)+"-"+parseInt(date[2]);
-        return formatedDate;
-    }
-
-    private String formatSystemDayToMatchCalendarDayFormat(String dataBaseDate){
-        String[] date = dataBaseDate.split("-");
-        String formatedDate = date[0]+"-";
-        if((parseInt(date[1])+1)<10){
-            formatedDate+="0"+(parseInt(date[1])+1);
-        }
-        else{
-            formatedDate+=""+(parseInt(date[1])+1);
-        }
-        formatedDate+="-";
-        if((parseInt(date[2]))<10){
-            formatedDate+="0"+(parseInt(date[2]));
-        }
-        else{
-            formatedDate+=""+(parseInt(date[2]));
-        }
-        return formatedDate;
-    }
 }

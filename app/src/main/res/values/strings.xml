@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">TMetric</string>
     <string name="title_activity_day_project">DayProjectActivity</string>
+    <string name="main_activity_time_worked_dialog_title">Total time worked:</string>
+    <string name="button_pick_start_hour">Pick start hour</string>
+    <string name="dialog_text_view_total_time_worked">Total time worked</string>
+    <string name="button_pick_finish_hour">Pick finis hour</string>
+    <string name="warning_click_both_buttons_before_submit">Calculate time worked first!</string>
+    <string name="message_info_saved_succesfully">Information saved</string>
+    <string name="warning_fill_all_fields_before_add_project">Please fill all the fields, and try again.</string>
+    <string name="message_progress_submitted_for_project">Progress submitted</string>
 </resources>
