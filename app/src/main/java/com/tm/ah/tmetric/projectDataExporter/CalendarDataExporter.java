@@ -16,15 +16,14 @@ public class CalendarDataExporter {
     public CalendarDataExporter(Context context, PDFMaker pdfMaker, String dataToConvert) {
         this.pdfMaker = pdfMaker;
         this.context = context;
-        this.dataToConvert= dataToConvert;
+        this.dataToConvert = dataToConvert;
     }
 
-    public void exportAsPDF(){
-        if(pdfMaker.write("Project_Data_Export","content :)")){
-            Toast.makeText(context,"Pdf exported succesfully!", Toast.LENGTH_LONG).show();
-        }
-        else{
-            Toast.makeText(context,"An error while exporting PDF, please try again!", Toast.LENGTH_LONG).show();
+    public void exportAsPDF() {
+        if (pdfMaker.write("Project_Data_Export", "content :)")) {
+            Toast.makeText(context, "Pdf exported succesfully!", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(context, "An error while exporting PDF, please try again!", Toast.LENGTH_LONG).show();
         }
 
     }

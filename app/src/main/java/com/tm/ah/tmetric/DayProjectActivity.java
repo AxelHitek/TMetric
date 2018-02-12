@@ -149,9 +149,10 @@ public class DayProjectActivity extends AppCompatActivity {
                 buttonSubmitHours.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(!textViewTimeWorkedHour.getText().toString().trim().equals("Total time worked"))
-                        setHoursWorkedToday(e.getText().toString().trim(), textViewTimeWorkedHour.getText().toString());
-                        else Toast.makeText(DayProjectActivity.this, R.string.warning_click_both_buttons_before_submit,Toast.LENGTH_SHORT).show();
+                        if (!textViewTimeWorkedHour.getText().toString().trim().equals("Total time worked"))
+                            setHoursWorkedToday(e.getText().toString().trim(), textViewTimeWorkedHour.getText().toString());
+                        else
+                            Toast.makeText(DayProjectActivity.this, R.string.warning_click_both_buttons_before_submit, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -160,7 +161,6 @@ public class DayProjectActivity extends AppCompatActivity {
 
         final ArrayList projectsAvailable = new ArrayList<String>();
         final LstViewAdapter adapter = new LstViewAdapter(this, R.layout.project_item, R.id.projectName, projectsAvailable);
-        // Bind data to the ListView
         projectListView.setAdapter(adapter);
 
         displayProjectsOnActivityLaunch(adapter, projectsAvailable);
@@ -301,7 +301,7 @@ public class DayProjectActivity extends AppCompatActivity {
             long diffMinutes = diff / (60 * 1000) % 60;
             long diffHours = diff / (60 * 60 * 1000) % 24;
 
-            Log.e("DIFFERENCE",Math.abs(diffHours) + ":" + Math.abs(diffMinutes));
+            Log.e("DIFFERENCE", Math.abs(diffHours) + ":" + Math.abs(diffMinutes));
             return new String(Math.abs(diffHours) + ":" + Math.abs(diffMinutes));
 
         }
