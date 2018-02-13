@@ -219,10 +219,17 @@ public class DayProjectActivity extends AppCompatActivity {
             String clientName = clientNameET;
             String taskName = taskNameET;
 
-            insertProjectIntoDB(projectName, clientName, taskName);
-            Toast.makeText(this, R.string.message_info_saved_succesfully, Toast.LENGTH_LONG).show();
-            displayNewProject(adapter, projectsAvailable, projectName, clientName, taskName);
-            dialog.dismiss();
+            String projectNameInList = projectName+"-"+clientName+"-"+taskName;
+            if(projectsAvailable.contains(projectNameInList)){
+                Toast.makeText(this, "This project already exists", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                insertProjectIntoDB(projectName, clientName, taskName);
+                Toast.makeText(this, R.string.message_info_saved_succesfully, Toast.LENGTH_LONG).show();
+                displayNewProject(adapter, projectsAvailable, projectName, clientName, taskName);
+                dialog.dismiss();
+            }
+
         } else {
             Toast.makeText(dialog.getContext(), R.string.warning_fill_all_fields_before_add_project, Toast.LENGTH_LONG).show();
         }
